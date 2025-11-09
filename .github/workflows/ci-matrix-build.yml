@@ -1,0 +1,43 @@
+
+name: CI Matrix Build with Artifacts
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14, 16, 18]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: matrix-1fd8a38
+        run: echo "Building for node ${{ matrix.node-version }}"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install deps
+        run: |
+          echo "No dependencies for this demo" > /dev/null
+
+      - name: Generate build artifact
+        run: |
+          mkdir -p artifacts
+          FILE=artifacts/build-1fd8a38-node${{ matrix.node-version }}.txt
+          echo "Build artifact for node ${{ matrix.node-version }}" > "$FILE"
+          echo "matrix: node-${{ matrix.node-version }}" >> "$FILE"
+          echo "generated_at: $(date --utc +%Y-%m-%dT%H:%M:%SZ)" >> "$FILE"
+          wc -c "$FILE"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-1fd8a38-node${{ matrix.node-version }}
+          path: artifacts/build-1fd8a38-node${{ matrix.node-version }}.txt
